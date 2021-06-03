@@ -91,7 +91,30 @@ public class dbindexquery {
                                             DAY_SIZE + 
                                             TIME_SIZE + 
                                             SENSORID_SIZE + 
-                                            SENSORNAME_SIZE;  
+                                            SENSORNAME_SIZE; 
+    
+    public void initialiseTree() 
+    {
+         root = new Tree();
+     }
+    //This program inputs heap file from index file and performs required operation
+ 	private static void bplusTreeSearch(String[] args) 
+ 	{
+      String[] SDTNames = Arrays.copyOfRange(args, 0, args.length - 1);
+    	 String spageSize = args[args.length - 1];
+ 	 String indexFileName = "treeIndex." + spageSize;
+ 	 String SDTName = "";
+      
+ 	  try
+ 	  {
+       if(SDTNames.length == 1)
+       {
+ 		SDTName = SDTNames[0];
+       } 
+       else 
+       {
+ 	   	SDTName = String.join(" ", SDTNames);
+       }
   
     // Initialize b+ tree
 // Main Method of the program
