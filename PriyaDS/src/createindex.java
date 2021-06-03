@@ -70,6 +70,49 @@ public void initialiseTree()
 {
 	//root = new Tree();
 }
+//Method to populate the B+tree using SDT_Name as index 
+public static void populateTree(int pageSize)  
+{
+
+	   //Initialize heapfile name
+	   String datafile = "heap." + pageSize;
+      int numBytesInSdtnameField = STD_NAME_SIZE;
+      int sizeOfRecord = TOTAL_SIZE;
+      int recPerPage = pageSize/sizeOfRecord;
+      byte[] page = new byte[pageSize];
+      FileInputStream inputStream = null;
+
+      try 
+      {
+      	//create file stream to head heap file
+          inputStream = new FileInputStream(datafile);
+          int numBytesRead = 0;
+          byte[] stdBytes = new byte[numBytesInSdtnameField];
+			int position=0;
+          //read until the end of file.
+          while ((numBytesRead = inputStream.read(page)) != -1) 
+          {
+              for (int i = 0; i < recPerPage; i++) 
+              {
+
+                  //  SdtName field of the record is copied to build the string
+                  System.arraycopy(page, (i*sizeOfRecord), stdBytes, 0, numBytesInSdtnameField);
+                  if (stdBytes[0] == 0) 
+                  {
+                      break;
+                  }
+                  String sdtNameString = new String(stdBytes);
+					insert(root,sdtNameString, position, sizeOfRecord);
+					position = position + numBytesRead;								
+              }
+          }
+          }
+      catch (Exception e) 
+      {
+          System.err.println("There is an error " + e.getMessage());
+      }		
+}
+
 //Method to insert record to tree
 private static void insert(Tree node, String key,long offset, int recLen) throws IOException 
 {
