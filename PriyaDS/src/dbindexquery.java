@@ -92,7 +92,7 @@ public class dbindexquery {
                                             TIME_SIZE + 
                                             SENSORID_SIZE + 
                                             SENSORNAME_SIZE; 
-    
+ // Initialize b+ tree
     public void initialiseTree() 
     {
          root = new Tree();
@@ -116,7 +116,7 @@ public class dbindexquery {
  	   	SDTName = String.join(" ", SDTNames);
        }
   
-    // Initialize b+ tree
+    
 // Main Method of the program
 public static void main(String[] args) 
 {
