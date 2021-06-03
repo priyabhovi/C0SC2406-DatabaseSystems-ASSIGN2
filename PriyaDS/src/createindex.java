@@ -196,6 +196,30 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 			}
 		}
 	}
+//This method split a tree to satisfy B+tree implementation
+	private static void split(Tree node) throws IOException 
+	{
+		Tree tempparent = new Tree(); 
+		Tree lNode = new Tree();
+		Tree rNode = new Tree();
+		Tree parent;
+		int newPosKey = 0;
+		int split = 0;
+		
+		if (node.isLeaf) 
+		{
+			if (node.key.size() % 2 == 0)
+				split = (node.key.size() / 2) - 1;
+			else
+				split = node.key.size() / 2;
+
+			rNode.isLeaf = true;
+			for (int i = split; i < node.key.size(); i++) 
+			{
+				rNode.key.add(node.key.get(i));
+				rNode.offsetvalue.add(node.offsetvalue.get(i));
+				rNode.dataLength.add(node.dataLength.get(i));
+			}
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
