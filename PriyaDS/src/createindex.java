@@ -220,6 +220,26 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 				rNode.offsetvalue.add(node.offsetvalue.get(i));
 				rNode.dataLength.add(node.dataLength.get(i));
 			}
+			
+			lNode.isLeaf = true;
+			for (int i = 0; i < split; i++) 
+			{
+				lNode.key.add(node.key.get(i));
+				lNode.offsetvalue.add(node.offsetvalue.get(i));
+				lNode.dataLength.add(node.dataLength.get(i));
+			}
+			
+			if (node.rightpointer != null)
+				rNode.rightpointer = node.rightpointer;
+			else
+				rNode.rightpointer = null;
+			if (node.leftpointer != null)
+				lNode.leftpointer = node.leftpointer;
+			else
+				lNode.leftpointer = null;
+
+			lNode.rightpointer = rNode;
+			rNode.leftpointer = lNode;
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
