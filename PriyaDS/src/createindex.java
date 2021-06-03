@@ -1,11 +1,18 @@
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 //This class is to have the nodes for the tree
-
 class Tree implements Serializable 
 {
 	public Tree parent;
@@ -32,6 +39,7 @@ class Tree implements Serializable
 	}
 
 }
+
 public class createindex 
 {
 
@@ -39,7 +47,7 @@ public class createindex
 static final int SDTName_SIZE = 24;
 // Total size of a single record.
 static final int RECORD_SIZE = 111;
-//static Tree root;
+static Tree root;
 static int Nodesize = 0; 
 //initialize the size of each field in a record
 private static final int STD_NAME_SIZE = 24;
@@ -68,65 +76,67 @@ COUNTS_SIZE;
 // Initialize tree for the first time
 public void initialiseTree() 
 {
-	//root = new Tree();
+	root = new Tree();
 }
+
 //Method to populate the B+tree using SDT_Name as index 
 public static void populateTree(int pageSize)  
 {
 
 	   //Initialize heapfile name
 	   String datafile = "heap." + pageSize;
-      int numBytesInSdtnameField = STD_NAME_SIZE;
-      int sizeOfRecord = TOTAL_SIZE;
-      int recPerPage = pageSize/sizeOfRecord;
-      byte[] page = new byte[pageSize];
-      FileInputStream inputStream = null;
+        int numBytesInSdtnameField = STD_NAME_SIZE;
+        int sizeOfRecord = TOTAL_SIZE;
+        int recPerPage = pageSize/sizeOfRecord;
+        byte[] page = new byte[pageSize];
+        FileInputStream inputStream = null;
 
-      try 
-      {
-      	//create file stream to head heap file
-          inputStream = new FileInputStream(datafile);
-          int numBytesRead = 0;
-          byte[] stdBytes = new byte[numBytesInSdtnameField];
+        try 
+        {
+        	//create file stream to head heap file
+            inputStream = new FileInputStream(datafile);
+            int numBytesRead = 0;
+            byte[] stdBytes = new byte[numBytesInSdtnameField];
 			int position=0;
-          //read until the end of file.
-          while ((numBytesRead = inputStream.read(page)) != -1) 
-          {
-              for (int i = 0; i < recPerPage; i++) 
-              {
+            //read until the end of file.
+            while ((numBytesRead = inputStream.read(page)) != -1) 
+            {
+                for (int i = 0; i < recPerPage; i++) 
+                {
 
-                  //  SdtName field of the record is copied to build the string
-                  System.arraycopy(page, (i*sizeOfRecord), stdBytes, 0, numBytesInSdtnameField);
-                  if (stdBytes[0] == 0) 
-                  {
-                      break;
-                  }
-                  String sdtNameString = new String(stdBytes);
+                    //  SdtName field of the record is copied to build the string
+                    System.arraycopy(page, (i*sizeOfRecord), stdBytes, 0, numBytesInSdtnameField);
+                    if (stdBytes[0] == 0) 
+                    {
+                        break;
+                    }
+                    String sdtNameString = new String(stdBytes);
 					insert(root,sdtNameString, position, sizeOfRecord);
 					position = position + numBytesRead;								
-              }
-          }
-          }
-      catch (Exception e) 
-      {
-          System.err.println("There is an error " + e.getMessage());
-      }		
-}
+                }
+            }
+            }
+        catch (Exception e) 
+        {
+            System.err.println("There is an error " + e.getMessage());
+        }		
+ }
+
 
 //Method to insert record to tree
 private static void insert(Tree node, String key,long offset, int recLen) throws IOException 
 {
 
-		//if ((node == null || node.key.isEmpty()) && node == root) 
+		if ((node == null || node.key.isEmpty()) && node == root) 
 		{
 			node.key.add(key);
 			node.offsetvalue.add((Long) offset);
 			node.dataLength.add(recLen);
 			node.isLeaf = true;
-			//root = node;
+			root = node;
 			return;
 		}
-	//	else if (node != null || !node.key.isEmpty()) 
+		else if (node != null || !node.key.isEmpty()) 
 		{
 			for (int x = 0; x < node.key.size(); x++) 
 			{	
@@ -134,7 +144,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 			{
 					if (!node.isLeaf && node.ptr.get(x) != null) 
 					{
-						//insert((Tree) node.ptr.get(x), key, offset, recLen);
+						insert((Tree) node.ptr.get(x), key, offset, recLen);
 						return;
 					} 
 					else if (node.isLeaf) 
@@ -153,7 +163,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 						node.dataLength.set(x, recLen);
 						if (node.key.size() == Nodesize) 
 						{
-							//split(node);
+							split(node);
 							return;
 						} 
 						else 
@@ -170,7 +180,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 					{
 						if (!node.isLeaf && node.ptr.get(x + 1) != null) 
 						{
-							//insert((Tree) node.ptr.get(x + 1),key, offset, recLen);
+							insert((Tree) node.ptr.get(x + 1),key, offset, recLen);
 							return;
 						}
 
@@ -186,7 +196,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 						
 						if (node.key.size() == Nodesize) 
 						{
-						split(node);
+							split(node);
 							return;
 						} 
 						else
@@ -196,7 +206,8 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 			}
 		}
 	}
-//This method split a tree to satisfy B+tree implementation
+
+	//This method split a tree to satisfy B+tree implementation
 	private static void split(Tree node) throws IOException 
 	{
 		Tree tempparent = new Tree(); 
@@ -240,6 +251,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 
 			lNode.rightpointer = rNode;
 			rNode.leftpointer = lNode;
+
 			if (node.parent == null) {
 				tempparent.isLeaf = false;
 				tempparent.key.add(rNode.key.get(0));
@@ -378,7 +390,7 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 			}
 		}
 	}
-	
+
 	//Method to write index file
    	private static void CreateTree(int pageSize) throws IOException 
    	{
@@ -395,7 +407,8 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 	}
 
 	}
- 	//Method to write index file 
+
+   	//Method to write index file 
 	private static void writeIndexfile(String key, String heapfilepath, String indexfilename) throws IOException 
 	{
 	
@@ -413,30 +426,31 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 		outputStream1.close();
 	}
 
-public static void main(String[] args) 
-{
-  createindex objTree = new createindex();
-  
-   try 
+      
+   public static void main(String[] args) 
    {
-    String input = args[0];
-    int pageSize = Integer.parseInt(input);
-    
-    long startTime = System.currentTimeMillis();
-    
+     createindex objTree = new createindex();
+     
+      try 
+      {
+       String input = args[0];
+       int pageSize = Integer.parseInt(input);
+       
+       long startTime = System.currentTimeMillis();
+       
 	   objTree.initialiseTree();
-   // objTree.CreateTree(pageSize);
-  
-    long stopTime = System.currentTimeMillis();
-    
-    System.out.println(stopTime - startTime + " ms");
-    System.out.println((stopTime - startTime) + " ms");
-    System.out.println("Index created successfully");
+       objTree.CreateTree(pageSize);
+     
+       long stopTime = System.currentTimeMillis();
+       
+       System.out.println(stopTime - startTime + " ms");
+       System.out.println((stopTime - startTime) + " ms");
+       System.out.println("Index created successfully");
 	   
 	} 
-   catch (Exception e) 
-   {   
-      System.out.println("Please enter a valid pagesize");
+      catch (Exception e) 
+      {   
+         System.out.println("Please enter a valid pagesize");
+    }
  }
-}
 }
