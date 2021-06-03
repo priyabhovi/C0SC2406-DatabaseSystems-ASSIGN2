@@ -238,6 +238,65 @@ public class dbindexquery {
      		e.printStackTrace();
      	  } 
      	}
+     	//Method to get record from heapfile
+    	private static void showRecord(String indexFile, int offset, int dataLength, String pageSize) 
+    	{		
+    	
+    	try
+    	{
+       
+    	 RandomAccessFile randomAccessFile1 = new RandomAccessFile("heap." + pageSize, "r");
+    	
+    	int numBytesIntField = 4;
+    	//SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+    			randomAccessFile1.seek(offset);
+    			byte[] record = new byte[TOTAL_SIZE];
+    			randomAccessFile1.read(record, 0, TOTAL_SIZE);
+    			byte[] SDT_Name = Arrays.copyOfRange(record, 0, STD_NAME_SIZE);
+    			byte[] id = Arrays.copyOfRange(record, ID_OFFSET, ID_OFFSET + numBytesIntField);
+    			byte[] date_time = Arrays.copyOfRange(record, DATE_OFFSET, DATE_OFFSET+ DATE_SIZE);
+    			byte[] year = Arrays.copyOfRange(record, YEAR_OFFSET,YEAR_OFFSET + numBytesIntField);
+    			byte[] month = Arrays.copyOfRange(record, MONTH_OFFSET,MONTH_OFFSET + MONTH_SIZE);
+    			byte[] mDate = Arrays.copyOfRange(record, MDATE_OFFSET, MDATE_OFFSET + numBytesIntField);
+    			byte[] day = Arrays.copyOfRange(record, DAY_OFFSET, DAY_OFFSET + DAY_SIZE);
+    			byte[] time = Arrays.copyOfRange(record, TIME_OFFSET,  TIME_OFFSET + numBytesIntField);
+    			byte[] sensorID = Arrays.copyOfRange(record, SENSORID_OFFSET,SENSORID_OFFSET + numBytesIntField);
+    			byte[] sensorName = Arrays.copyOfRange(record, SENSORNAME_OFFSET, SENSORNAME_OFFSET + SENSORNAME_SIZE);
+    			byte[] hourlycounts = Arrays.copyOfRange(record, COUNTS_OFFSET,COUNTS_OFFSET + numBytesIntField);
+    		
+
+    			/*String recordtemp = oSDTname.trim() + "," + idValue+ "," + date + "," + yearValue +"," + monthValue + "," + mDateValue
+    					+ "," + dayValue + "," + timeValue+ "," + sensorIDValue + "," + sensorNameValue+ "," + hourlycountsValue;
+    					//Dispaly the record to console
+    			        System.out.println(recordtemp);*/
+
+    			        
+    			String oSDTname = new String(SDT_Name);
+    			int idValue = java.nio.ByteBuffer.wrap(id).getInt();
+    			int yearValue = java.nio.ByteBuffer.wrap(year).getInt();
+    			String dayValue = new String(day).trim();
+    			int mDateValue = java.nio.ByteBuffer.wrap(mDate).getInt();
+    			Date date = new Date(ByteBuffer.wrap(date_time).getLong());
+    		    String monthValue = new String(month).trim();
+    			int timeValue = java.nio.ByteBuffer.wrap(time).getInt();
+    			int sensorIDValue = java.nio.ByteBuffer.wrap(sensorID).getInt();
+    			String sensorNameValue = new String(sensorName).trim();
+    			int hourlycountsValue = java.nio.ByteBuffer.wrap(hourlycounts).getInt();
+
+    			String recordtemp = oSDTname.trim() + "," + idValue+ "," + date + "," + yearValue +"," + monthValue + "," + mDateValue
+    			+ "," + dayValue + "," + timeValue+ "," + sensorIDValue + "," + sensorNameValue+ "," + hourlycountsValue;
+    			//Dispaly the record to console
+    	        System.out.println(recordtemp);
+
+    			
+    								
+    			randomAccessFile1.close();
+    		} 
+    	catch (IOException e) 
+    	{
+                e.printStackTrace();
+        } 
+    	}
 
 // Main Method of the program
 public static void main(String[] args) 
