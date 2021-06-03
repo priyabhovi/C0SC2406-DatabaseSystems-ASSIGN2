@@ -327,6 +327,57 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 				lNode.ptr.get(n++).parent = lNode;
 			}
 			n = 0;
+			if (node.parent == null) 
+			{
+				tempparent.isLeaf = false;
+				tempparent.key.add(popKey);
+				tempparent.ptr.add(lNode);
+				tempparent.ptr.add(rNode);
+				lNode.parent = tempparent;
+				rNode.parent = tempparent;
+				node = tempparent;
+				root = tempparent;
+				return;
+			}
+			else if (node.parent != null) 
+			{
+				parent = node.parent;
+				parent.key.add(popKey);
+				Collections.sort(parent.key);
+				newPosKey = parent.key.indexOf(popKey);
+
+				if (newPosKey == parent.key.size() - 1) 
+				{
+					parent.ptr.set(newPosKey, lNode);
+					parent.ptr.add(rNode);
+					rNode.parent = parent;
+					lNode.parent = parent;
+				}
+				else if (newPosKey < parent.key.size() - 1) 
+				{
+					int ptsize = parent.ptr.size();
+					parent.ptr.add(null);
+					for (int x = ptsize - 1; x > newPosKey; x--) 
+					{
+						parent.ptr.set(x + 1, parent.ptr.get(x));
+					}
+
+					parent.ptr.set(newPosKey, lNode);
+					parent.ptr.set(newPosKey + 1, rNode);
+					lNode.parent = parent;
+					rNode.parent = parent;
+				}
+				
+				if (parent.key.size() == Nodesize) 
+				{
+					split(parent);
+					return;
+				} 
+				else
+					return;
+			}
+		}
+	}
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
