@@ -395,6 +395,24 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 	}
 
 	}
+ 	//Method to write index file 
+	private static void writeIndexfile(String key, String heapfilepath, String indexfilename) throws IOException 
+	{
+	
+		FileOutputStream fileOutput1 = new FileOutputStream(indexfilename);
+		byte[] inputFile = heapfilepath.getBytes();
+		byte[] keyLength = key.getBytes();
+		byte[] rootOffset = (" " + root.key.get(0)).getBytes();
+		FileChannel fileChan = fileOutput1.getChannel();
+		fileChan.write(ByteBuffer.wrap(inputFile));
+		fileChan.write(ByteBuffer.wrap(keyLength), 257l);
+		fileChan.write(ByteBuffer.wrap(rootOffset), 260l);
+		fileChan.position(1025l);
+		ObjectOutputStream outputStream1 = new ObjectOutputStream(fileOutput1);
+		outputStream1.writeObject(root);
+		outputStream1.close();
+	}
+
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
