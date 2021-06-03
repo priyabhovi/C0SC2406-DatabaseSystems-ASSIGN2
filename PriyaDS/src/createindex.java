@@ -1,5 +1,37 @@
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
 
+//This class is to have the nodes for the tree
+
+class Tree implements Serializable 
+{
+	public Tree parent;
+	public Tree rightpointer; 
+	public Tree leftpointer; 
+	public boolean isLeaf;
+	public List<String> key; 
+	public List<Tree> ptr;
+	public List<Long> offsetvalue;
+	public List<Integer> dataLength; 
+
+	
+	public Tree() 
+	{
+		this.dataLength = new ArrayList<Integer>();
+		this.parent = null;
+		this.rightpointer = null;
+		this.leftpointer = null;
+		this.isLeaf = false;
+		this.key = new ArrayList<String>();
+		this.ptr = new ArrayList<Tree>();
+		this.offsetvalue = new ArrayList<Long>();
+
+	}
+
+}
 public class createindex 
 {
 
@@ -38,6 +70,89 @@ public void initialiseTree()
 {
 	//root = new Tree();
 }
+//Method to insert record to tree
+private static void insert(Tree node, String key,long offset, int recLen) throws IOException 
+{
+
+		//if ((node == null || node.key.isEmpty()) && node == root) 
+		{
+			node.key.add(key);
+			node.offsetvalue.add((Long) offset);
+			node.dataLength.add(recLen);
+			node.isLeaf = true;
+			//root = node;
+			return;
+		}
+	//	else if (node != null || !node.key.isEmpty()) 
+		{
+			for (int x = 0; x < node.key.size(); x++) 
+			{	
+			if (key.compareTo(node.key.get(x)) < 0) 
+			{
+					if (!node.isLeaf && node.ptr.get(x) != null) 
+					{
+						//insert((Tree) node.ptr.get(x), key, offset, recLen);
+						return;
+					} 
+					else if (node.isLeaf) 
+					{
+						node.key.add("");
+						node.offsetvalue.add(0l);
+						node.dataLength.add(0);
+						for (int y = node.key.size() - 2; y >= x; y--) 
+						{
+							node.key.set(y + 1, node.key.get(y));
+							node.offsetvalue.set(y + 1, node.offsetvalue.get(y));
+							node.dataLength.set(y + 1, node.dataLength.get(y));
+						}
+						node.key.set(x, key);
+						node.offsetvalue.set(x, offset);
+						node.dataLength.set(x, recLen);
+						if (node.key.size() == Nodesize) 
+						{
+							//split(node);
+							return;
+						} 
+						else 
+							return;
+					}
+				}
+				else if (key.compareTo(node.key.get(x)) > 0) 
+				{
+					if (x < node.key.size() - 1) 
+					{
+						continue;
+					}
+					else if (x == node.key.size() - 1) 
+					{
+						if (!node.isLeaf && node.ptr.get(x + 1) != null) 
+						{
+							//insert((Tree) node.ptr.get(x + 1),key, offset, recLen);
+							return;
+						}
+
+						else if (node.isLeaf) 
+						{
+							node.key.add("");
+							node.offsetvalue.add(0l);
+							node.dataLength.add(0);
+							node.key.set(x + 1, key);
+							node.offsetvalue.set(x + 1, offset);
+							node.dataLength.set(x + 1, recLen);
+						}
+						
+						if (node.key.size() == Nodesize) 
+						{
+						split(node);
+							return;
+						} 
+						else
+							return;
+					}
+				}
+			}
+		}
+	}
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
