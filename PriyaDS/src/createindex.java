@@ -296,6 +296,37 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 					return;
 			}
 		}
+		else if (!node.isLeaf) 
+		{
+			rNode.isLeaf = false;
+			if (node.key.size() % 2 == 0)
+				split = (node.key.size() / 2) - 1;
+			else
+				split = node.key.size() / 2;
+
+			String popKey = node.key.get(split);
+			int m = 0;
+			int n = 0;
+			for (int x = split + 1; x < node.key.size(); x++) 
+			{
+				rNode.key.add(node.key.get(x));
+			}
+			for (int x = split + 1; x < node.ptr.size(); x++) 
+			{
+				rNode.ptr.add(node.ptr.get(x));
+				rNode.ptr.get(m++).parent = rNode;
+			}
+			m = 0;
+			for (int x = 0; x < split; x++) 
+			{
+				lNode.key.add(node.key.get(x));
+			}
+			for (int x = 0; x < split + 1; x++) 
+			{
+				lNode.ptr.add(node.ptr.get(x));
+				lNode.ptr.get(n++).parent = lNode;
+			}
+			n = 0;
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
