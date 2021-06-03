@@ -378,6 +378,23 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 			}
 		}
 	}
+	
+	//Method to write index file
+   	private static void CreateTree(int pageSize) throws IOException 
+   	{
+		try
+		{
+		String IndexFileName = "treeIndex." + pageSize;
+		Path path = Paths.get("heap." + pageSize);
+		populateTree(pageSize);
+		writeIndexfile("6", path.toString(), IndexFileName);
+	}
+	catch (Exception e) 
+		{
+		System.err.println("Error occcured " + e.getMessage());
+	}
+
+	}
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
