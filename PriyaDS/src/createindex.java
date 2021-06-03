@@ -240,6 +240,62 @@ private static void insert(Tree node, String key,long offset, int recLen) throws
 
 			lNode.rightpointer = rNode;
 			rNode.leftpointer = lNode;
+			if (node.parent == null) {
+				tempparent.isLeaf = false;
+				tempparent.key.add(rNode.key.get(0));
+				tempparent.ptr.add(lNode);
+				tempparent.ptr.add(rNode);
+				lNode.parent = tempparent;
+				rNode.parent = tempparent;
+				root = tempparent;
+				node = tempparent;
+			}
+			else if (node.parent != null) 
+			{
+				parent = node.parent;				
+				parent.key.add(rNode.key.get(0));
+				Collections.sort(parent.key);
+				lNode.parent = parent;
+				rNode.parent = parent;
+				newPosKey = parent.key.indexOf(rNode.key.get(0));
+
+				if (newPosKey < parent.key.size() - 1) 
+				{
+					parent.ptr.add(null);
+
+					for (int x = parent.key.size() - 1; x > newPosKey; x--) 
+					{
+						parent.ptr.set(x + 1, parent.ptr.get(x));
+					}
+
+					parent.ptr.set(newPosKey + 1, rNode);
+					parent.ptr.set(newPosKey, lNode);
+				}
+
+				else if (newPosKey == parent.key.size() - 1) 
+				{
+					parent.ptr.set(newPosKey, lNode);
+					parent.ptr.add(rNode);
+				}
+				if (node.leftpointer != null) 
+				{
+					node.leftpointer.rightpointer = lNode;
+					lNode.leftpointer = node.leftpointer;
+				}
+				if (node.rightpointer != null) 
+				{
+					node.rightpointer.leftpointer = rNode;
+					rNode.rightpointer = node.rightpointer;
+				}
+				if (parent.key.size() == Nodesize) 
+				{
+					split(parent);
+					return;
+				} 
+				else
+					return;
+			}
+		}
 public static void main(String[] args) 
 {
   createindex objTree = new createindex();
