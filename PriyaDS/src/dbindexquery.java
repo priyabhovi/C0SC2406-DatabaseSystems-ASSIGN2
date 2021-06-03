@@ -1,3 +1,12 @@
+import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class dbindexquery {
 
@@ -116,7 +125,120 @@ public class dbindexquery {
  	   	SDTName = String.join(" ", SDTNames);
        }
   
-    
+     //Connect to input file
+     		FileInputStream fileInputStream = new FileInputStream(indexFileName);
+     		FileChannel fileChan = fileInputStream.getChannel();
+     		fileChan.position(1025l);
+     		ObjectInputStream objectInStream = new ObjectInputStream(fileInputStream);
+             Tree newroot = (Tree) objectInStream.readObject();
+     		objectInStream.close();
+     	    //search for input key
+     	 	findData(newroot, indexFileName, SDTName, spageSize);
+     	
+     	  } 
+     	  catch (FileNotFoundException e) 
+     	  {
+     		  e.printStackTrace();
+     	  } 
+     	  catch (IOException e) 
+     	  {
+     		  e.printStackTrace();
+     	  } 
+     	  catch (ClassNotFoundException e) 
+     	  {
+     		  e.printStackTrace();
+     	  }
+
+     	}
+
+     	private static void findData(Tree node, String indexFile, String key, String pageSize) 
+     	{
+     	
+     	  try
+     	  {
+     			
+     		int keyLen = Integer.parseInt(fetchMetadata(indexFile,"key"));
+     		if(key.length() > keyLen) 
+     		{
+     			key = key.substring(0, keyLen);
+     		}
+     		
+     		//for (int x = 0; x < node.key.size()+1; x++) 
+     	
+     		for (int x = 0; x < node.key.size(); x++) 
+     		{
+       	  	  if (node.isLeaf) 
+       	  	  {
+     				boolean temp = node.key.get(x).contains(key);
+     				int indexKey = -1;
+     				
+     				if (temp == true) 
+     				{
+     					indexKey = x;
+     				}
+     				
+     			if (indexKey == -1) 
+     			{
+     					if (x < node.key.size() - 1) 
+     					{
+     						continue;
+     					}
+     					
+     	
+     				} 
+     			else if (indexKey != -1) 
+     			{ 
+     					int offVal = node.offsetvalue.get(indexKey).intValue();
+     					int dataLen = node.dataLength.get(indexKey);
+     					showRecord(indexFile, offVal, dataLen, pageSize);
+     				
+     				}
+     			}
+     			else if (key.compareTo(node.key.get(x)) < 0) 
+     			{
+     				if (node.ptr.get(x) != null) 
+     				{
+     					findData(node.ptr.get(x), indexFile, key, pageSize);
+     					return;
+     				}
+     			}
+     			else if (key.compareTo(node.key.get(x)) >= 0) 
+     			{
+     		     if (x < node.key.size() - 1) 
+     		     {
+     					continue;
+     		     }
+     		    /* else if (key.compareTo(node.key.get(x)) >= 0) 
+     				{
+     			     if (x < node.key.size() - 1) 
+     			     {
+     						continue;
+     			     }*/
+     			else if (x == node.key.size() - 1) 
+     			{
+     			
+     				if (!node.isLeaf && node.ptr.get(x + 1) != null) 
+     				{
+     						findData((Tree) node.ptr.get(x + 1),indexFile, key, pageSize);
+     						return;
+     					}
+     				}
+
+     			
+     			}
+     		}
+
+     	} 
+     	  catch (FileNotFoundException e) 
+     	  {
+     		e.printStackTrace();
+     	  } 
+     	  catch (IOException e) 
+     	  {
+     		e.printStackTrace();
+     	  } 
+     	}
+
 // Main Method of the program
 public static void main(String[] args) 
 {
